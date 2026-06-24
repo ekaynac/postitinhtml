@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><title>postits — vanilla demo</title></head>
+  <body style="font-family: system-ui; padding: 2rem">
+    <h1>postits vanilla demo</h1>
+    <p>Open this page in two browser windows to see notes sync.</p>
+    <script src="../../packages/core/dist/index.global.js"></script>
+    <script>
+      Postits.init({
+        // host: "your-postits.partykit.dev", // self-host in production
+        identity: () => ({ name: localStorage.getItem("postits-name") || "Guest" }),
+      });
+    </script>
+  </body>
+</html>
