@@ -11,6 +11,7 @@ export interface Store {
   bringToFront(id: string): void;
   deleteNote(id: string): Note | undefined;
   restoreNote(n: Note): void;
+  setColor(id: string, color: string): void;
 }
 
 export function maxZ(notes: Note[]): number {
@@ -44,5 +45,9 @@ export function createStore(handle: StoreHandle, deps: StoreDeps): Store {
       return found;
     },
     restoreNote(n) { handle.setData((d) => { if (!d.notes.some((x) => x.id === n.id)) d.notes.push(n); }); },
+    setColor(id, color) {
+      const now = deps.now();
+      handle.setData((d) => { const n = d.notes.find((x) => x.id === id); if (n) { n.color = color; n.updatedAt = now; } });
+    },
   };
 }

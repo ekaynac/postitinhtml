@@ -30,3 +30,10 @@ test("deleteNote removes and returns it; restoreNote re-adds", () => {
   expect(removed?.id).toBe(a.id); expect(h.state.notes).toHaveLength(0);
   s.restoreNote(removed!); expect(h.state.notes).toHaveLength(1);
 });
+
+test("setColor changes a note's color", () => {
+  const h = fakeHandle(); const s = createStore(h, deps);
+  const a = s.addNote({ x: 0, y: 0, color: "#FEF08A", author: { name: "Ada" } });
+  s.setColor(a.id, "#BFDBFE");
+  expect(h.state.notes[0]!.color).toBe("#BFDBFE");
+});
