@@ -97,9 +97,19 @@ export class PostitsServer extends YServer<Env> {
 // Default fetch handler: route PartyKit-style /parties/main/:room requests.
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    return (
-      (await routePartykitRequest(request, env)) ??
-      new Response("Not Found", { status: 404 })
-    );
+    const routed = await routePartykitRequest(request, env);
+    if (routed) return routed;
+
+    // Health endpoint so the service is self-describing and tooling (e.g. the
+    // Playwright webServer readiness probe) gets a 2xx on the root path.
+    const { pathname } = new URL(request.url);
+    if (pathname === "/" || pathname === "/health") {
+      return new Response("postits-server ok", {
+        status: 200,
+        headers: { "content-type": "text/plain" },
+      });
+    }
+
+    return new Response("Not Found", { status: 404 });
   },
 } satisfies ExportedHandler<Env>;

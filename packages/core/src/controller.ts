@@ -9,7 +9,7 @@ import { clampToViewport } from "./note";
 
 export interface PostitsInstance { addNote(): void; setBoardVisible(v: boolean): void; destroy(): void }
 
-export function createController(playhtml: { init: (o?: { host?: string }) => void }, config: PostitsConfig = {}): PostitsInstance {
+export function createController(playhtml: { init: (o?: { host?: string; room?: string }) => void }, config: PostitsConfig = {}): PostitsInstance {
   const palette = config.palette ?? [...DEFAULT_PALETTE];
   const boardId = config.boardId ?? BOARD_ID;
   const now = () => Date.now();
@@ -81,7 +81,10 @@ export function createController(playhtml: { init: (o?: { host?: string }) => vo
 
   document.body.appendChild(reg);
   window.addEventListener("resize", render);
-  playhtml.init(config.host ? { host: config.host } : undefined);
+  const playhtmlOpts: { host?: string; room?: string } = {};
+  if (config.host) playhtmlOpts.host = config.host;
+  if (config.room) playhtmlOpts.room = config.room;
+  playhtml.init(Object.keys(playhtmlOpts).length > 0 ? playhtmlOpts : undefined);
 
   return {
     addNote,

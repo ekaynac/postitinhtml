@@ -4,7 +4,7 @@ export interface Note {
 }
 export interface BoardData { notes: Note[] }
 export type IdentityResolver = () => { name: string; id?: string };
-export interface PostitsConfig { host?: string; identity?: IdentityResolver; palette?: string[]; boardId?: string }
+export interface PostitsConfig { host?: string; room?: string; identity?: IdentityResolver; palette?: string[]; boardId?: string }
 
 export const DEFAULT_PALETTE = ["#FEF08A","#FBCFE8","#BFDBFE","#BBF7D0","#FED7AA"] as const;
 export const DEFAULT_COLOR = "#FEF08A";

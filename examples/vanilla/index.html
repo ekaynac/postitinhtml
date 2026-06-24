@@ -4,11 +4,23 @@
   <body style="font-family: system-ui; padding: 2rem">
     <h1>postits vanilla demo</h1>
     <p>Open this page in two browser windows to see notes sync.</p>
-    <script src="../../packages/core/dist/index.global.js"></script>
+    <!-- Root-relative path works when served from project root (npx serve .) or via file:// with ../../ traversal -->
+    <script src="/packages/core/dist/index.global.js"></script>
     <script>
-      Postits.init({
-        // host: "your-postits.partykit.dev", // self-host in production
-        identity: () => ({ name: localStorage.getItem("postits-name") || "Guest" }),
+      // URL params used by E2E tests for isolation and self-hosted server targeting:
+      //   ?host=localhost:8787  → point at local wrangler dev server
+      //   ?room=e2e-abc123     → unique room per test run (isolation)
+      //   ?boardId=my-board   → element id for playhtml registry
+      //   ?me=Alice            → identity name
+      // The IIFE global exposes the module namespace as window.Postits.
+      // The named Postits export (with init/destroy) is window.Postits.Postits.
+      const { Postits: PostitsAPI } = Postits;
+      const params = new URLSearchParams(location.search);
+      PostitsAPI.init({
+        host: params.get("host") || undefined,
+        room: params.get("room") || undefined,
+        boardId: params.get("boardId") || undefined,
+        identity: () => ({ name: params.get("me") || localStorage.getItem("postits-name") || "Guest" }),
       });
     </script>
   </body>
