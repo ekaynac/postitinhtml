@@ -12,11 +12,9 @@
       //   ?room=e2e-abc123     → unique room per test run (isolation)
       //   ?boardId=my-board   → element id for playhtml registry
       //   ?me=Alice            → identity name
-      // The IIFE global exposes the module namespace as window.Postits.
-      // The named Postits export (with init/destroy) is window.Postits.Postits.
-      const { Postits: PostitsAPI } = Postits;
+      // The IIFE build exposes the API object directly as window.Postits.
       const params = new URLSearchParams(location.search);
-      PostitsAPI.init({
+      Postits.init({
         host: params.get("host") || undefined,
         room: params.get("room") || undefined,
         boardId: params.get("boardId") || undefined,
