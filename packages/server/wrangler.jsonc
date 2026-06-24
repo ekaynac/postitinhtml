@@ -1,0 +1,24 @@
+{
+  // Cloudflare Workers + Durable Objects config for the postits sync server.
+  // Deploy with: npx wrangler deploy
+  "name": "postits-server",
+  "main": "src/server.ts",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      {
+        // Binding name must be PascalCase for routePartykitRequest() auto-routing.
+        // It will be routed via /parties/main/:room (kebab-case of "Main").
+        "name": "Main",
+        "class_name": "PostitsServer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["PostitsServer"]
+    }
+  ]
+}
