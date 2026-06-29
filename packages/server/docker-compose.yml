@@ -1,0 +1,22 @@
+# Run the postits sync server on your own host (e.g. the teklif prod box).
+#   docker compose up -d --build
+# Then reverse-proxy wss://<your-domain>/parties/ -> 127.0.0.1:8787 in nginx
+# (see packages/server/nginx-parties.conf) and set the frontend's
+# VITE_POSTITS_HOST to <your-domain>.
+services:
+  postits-server:
+    build: .
+    container_name: postits-server
+    restart: unless-stopped
+    # Bind to localhost only; nginx terminates TLS and proxies /parties/ here.
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      # Durable-Object SQLite (note persistence) survives restarts here.
+      - postits-state:/app/.wrangler
+    environment:
+      - CI=1
+      - WRANGLER_SEND_METRICS=false
+
+volumes:
+  postits-state:
