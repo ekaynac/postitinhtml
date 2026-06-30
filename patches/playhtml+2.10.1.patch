@@ -1,0 +1,13 @@
+diff --git a/node_modules/playhtml/dist/playhtml.es.js b/node_modules/playhtml/dist/playhtml.es.js
+index df5bff5..ec69dfe 100644
+--- a/node_modules/playhtml/dist/playhtml.es.js
++++ b/node_modules/playhtml/dist/playhtml.es.js
+@@ -6654,7 +6654,7 @@ var ai = class extends Mu {
+   #e;
+   constructor(t, e, n, s = {}) {
+     eo(t, "host", "string"), eo(e, "room", "string"), t = t.replace(/^(http|https|ws|wss):\/\//, ""), t.endsWith("/") && (t = t.slice(0, -1));
+-    const r = `${s.protocol || (t.startsWith("localhost:") || t.startsWith("127.0.0.1:") || t.startsWith("192.168.") || t.startsWith("10.") || t.startsWith("172.") && t.split(".")[1] >= "16" && t.split(".")[1] <= "31" ? "ws" : "wss")}://${t}${s.prefix || `/parties/${s.party || "main"}`}`, i = s.connectionId ?? Au(10), { params: o, connect: l = !0, ...a } = s, c = {
++    const r = `${s.protocol||(typeof location!=="undefined"&&location.protocol==="https:"?"wss":(typeof location!=="undefined"&&location.protocol==="http:"?"ws":"wss"))}://${t}${s.prefix || `/parties/${s.party || "main"}`}`, i = s.connectionId ?? Au(10), { params: o, connect: l = !0, ...a } = s, c = {
+       ...a,
+       isPrefixedUrl: !!s.prefix,
+       connect: !1

@@ -27,7 +27,8 @@ export function createController(playhtml: { init: (o?: { host?: string; room?: 
     if (!store) return;
     const vp = { width: window.innerWidth, height: window.innerHeight };
     const notes = store.getNotes().map((n) => clampToViewport(n, vp, NOTE_SIZE));
-    renderNotes(overlay.notesLayer, notes, { palette, handlers, now: now() });
+    const me = resolveAuthor(config.identity);
+    renderNotes(overlay.notesLayer, notes, { palette, handlers, now: now(), currentUserId: me.id });
   };
 
   const handlers: NoteHandlers = {
@@ -40,12 +41,23 @@ export function createController(playhtml: { init: (o?: { host?: string; room?: 
 
   function beginDrag(id: string, e: PointerEvent) {
     const start = store?.getNotes().find((n) => n.id === id); if (!start) return;
+    const el = overlay.notesLayer.querySelector(`[data-id="${id}"]`) as HTMLElement | null;
     const origin = { x: start.x, y: start.y };
     const pStart = { x: e.clientX, y: e.clientY };
+    // Suppress native text selection across the page while dragging.
+    const prevUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = "none";
+    if (el) el.dataset.dragging = "1";
     const commit = createThrottle((x: number, y: number) => store?.moveNote(id, x, y), 50, now);
-    const move = (ev: PointerEvent) => { const p = nextPosition(origin, pStart, { x: ev.clientX, y: ev.clientY }); commit(p.x, p.y); };
+    const move = (ev: PointerEvent) => {
+      const p = nextPosition(origin, pStart, { x: ev.clientX, y: ev.clientY });
+      if (el) el.style.transform = `translate(${p.x}px, ${p.y}px)`; // smooth, immediate
+      commit(p.x, p.y);                                             // throttled sync for others
+    };
     const up = (ev: PointerEvent) => {
       const p = nextPosition(origin, pStart, { x: ev.clientX, y: ev.clientY });
+      if (el) delete el.dataset.dragging;
+      document.body.style.userSelect = prevUserSelect;
       store?.moveNote(id, p.x, p.y);
       window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up);
     };

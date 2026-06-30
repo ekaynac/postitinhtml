@@ -29,7 +29,8 @@ export function createStore(handle: StoreHandle, deps: StoreDeps): Store {
     },
     editNote(id, text) {
       const clean = sanitizeText(text); const now = deps.now();
-      handle.setData((d) => { const n = d.notes.find((x) => x.id === id); if (n) { n.text = clean; n.updatedAt = now; } });
+      // No-op blurs (e.g. clicking delete/colour) must not bump updatedAt.
+      handle.setData((d) => { const n = d.notes.find((x) => x.id === id); if (n && n.text !== clean) { n.text = clean; n.updatedAt = now; } });
     },
     moveNote(id, x, y) {
       const now = deps.now();

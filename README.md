@@ -21,6 +21,11 @@ can live entirely on your own infrastructure.
   infra.
 - **Author + timestamp** — pluggable identity resolver (e.g. your SSO display
   name), with a `Guest` fallback.
+- **Author-scoped editing** — you can edit, recolour, and delete only your *own*
+  notes; everyone else's are read-only (you can still move and read them).
+- **Smooth collaborative drag** — the note you drag follows the cursor directly,
+  while others see it move live; in-progress typing is never interrupted by a
+  remote update (the board reconciles in place rather than redrawing).
 - **XSS-safe** — note text is rendered as text, never HTML.
 
 ## Install
@@ -64,11 +69,16 @@ function App() {
 type PostitsConfig = {
   host?: string;                                  // sync server host; omit for playhtml's hosted backend
   room?: string;                                  // scope/isolate a board
-  identity?: () => { name: string; id?: string }; // author resolver
+  identity?: () => { name: string; id?: string }; // author resolver (id drives author-scoped editing)
   palette?: string[];                             // note colors
   boardId?: string;                               // registry element id
 };
 ```
+
+If the sync server is reached through the same domain that serves your page
+(e.g. behind the same nginx, on a `/parties/` route), pass
+`host: window.location.host` — it then works by hostname or IP without baking a
+host in at build time, and uses `wss://` automatically on an `https://` page.
 
 ## Self-hosting the sync server
 
@@ -81,7 +91,11 @@ npx wrangler dev      # local: http://localhost:8787
 npx wrangler deploy   # deploy to your Cloudflare account
 ```
 
-Then set `host` to your deployed URL. See `packages/server/README.md`.
+**Off Cloudflare** (your own VM/box): a `Dockerfile` + `docker-compose.yml` run
+the same worker via `workerd` and persist notes to a volume —
+`docker compose up -d --build`. Reverse-proxy `wss://<host>/parties/` to it with
+`packages/server/nginx-parties.conf`. Then set `host` accordingly. See
+`packages/server/README.md`.
 
 ## Packages
 
@@ -99,6 +113,14 @@ npm test                 # unit (Vitest + jsdom)
 npm run build            # build all packages (tsup)
 cd e2e && npx playwright test   # two-client sync + persistence E2E
 ```
+
+## Notes
+
+- **HTTPS pages use `wss://` automatically.** playhtml's bundled provider picks
+  `ws://` for private-IP hosts, which an `https://` page blocks as mixed content.
+  A small patch (`patches/playhtml+*.patch`, applied via `patch-package` on
+  `postinstall`) makes it follow the page protocol. If you self-host over HTTPS,
+  keep that patch.
 
 ## License
 

@@ -7,6 +7,16 @@ function fakeHandle(): StoreHandle & { state: BoardData } {
 }
 const deps = (() => { let n = 0, t = 1000; return { now: () => (t += 1), uuid: () => `id-${++n}` }; })();
 
+test("editNote ignores no-op edits (unchanged text doesn't bump updatedAt)", () => {
+  const h = fakeHandle(); const s = createStore(h, deps);
+  const a = s.addNote({ x: 0, y: 0, color: "#FEF08A", author: { name: "Ada" }, text: "hi" });
+  const before = h.state.notes[0]!.updatedAt;
+  s.editNote(a.id, "hi");                       // same text -> no change
+  expect(h.state.notes[0]!.updatedAt).toBe(before);
+  s.editNote(a.id, "bye");                      // changed -> applied
+  expect(h.state.notes[0]!.text).toBe("bye");
+});
+
 test("addNote appends a note with incrementing z", () => {
   const h = fakeHandle(); const s = createStore(h, deps);
   const a = s.addNote({ x: 1, y: 2, color: "#FEF08A", author: { name: "Ada" } });
