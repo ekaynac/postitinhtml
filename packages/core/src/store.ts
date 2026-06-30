@@ -33,8 +33,9 @@ export function createStore(handle: StoreHandle, deps: StoreDeps): Store {
       handle.setData((d) => { const n = d.notes.find((x) => x.id === id); if (n && n.text !== clean) { n.text = clean; n.updatedAt = now; } });
     },
     moveNote(id, x, y) {
-      const now = deps.now();
-      handle.setData((d) => { const n = d.notes.find((x2) => x2.id === id); if (n) { n.x = x; n.y = y; n.updatedAt = now; } });
+      // Repositioning is not a content edit — don't touch updatedAt so the
+      // "x ago" time keeps reflecting creation/last-edit, not dragging.
+      handle.setData((d) => { const n = d.notes.find((x2) => x2.id === id); if (n) { n.x = x; n.y = y; } });
     },
     bringToFront(id) {
       const top = maxZ(notes()) + 1;

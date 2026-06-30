@@ -17,6 +17,15 @@ test("editNote ignores no-op edits (unchanged text doesn't bump updatedAt)", () 
   expect(h.state.notes[0]!.text).toBe("bye");
 });
 
+test("moveNote does not bump updatedAt (dragging is not an edit)", () => {
+  const h = fakeHandle(); const s = createStore(h, deps);
+  const a = s.addNote({ x: 0, y: 0, color: "#FEF08A", author: { name: "Ada" } });
+  const before = h.state.notes[0]!.updatedAt;
+  s.moveNote(a.id, 99, 88);
+  expect(h.state.notes[0]!.x).toBe(99);
+  expect(h.state.notes[0]!.updatedAt).toBe(before);
+});
+
 test("addNote appends a note with incrementing z", () => {
   const h = fakeHandle(); const s = createStore(h, deps);
   const a = s.addNote({ x: 1, y: 2, color: "#FEF08A", author: { name: "Ada" } });
